@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
 import pool from "../db.js";
 import { runAnalysis } from "../agents/graph.js";
+import { generatePdf } from "../utils/pdfGenerator.js";
+
+// Run DB migration to add scorecard column if it doesn't exist
+pool.query(`ALTER TABLE "Analysis" ADD COLUMN IF NOT EXISTS scorecard JSONB`)
+  .catch(() => {}); // Silently ignore if already exists
 
 // POST /api/analysis — trigger the multi-agent pipeline
 export const createAnalysis = async (req: Request, res: Response) => {
   try {
     const { startupName, description } = req.body;
-    const userId = (req as any).userId; // set by auth middleware
+    const userId = (req as any).userId;
 
     if (!startupName || startupName.trim() === "") {
       return res.status(400).json({ error: "startupName is required" });
@@ -30,17 +35,29 @@ export const createAnalysis = async (req: Request, res: Response) => {
 
     // Run the agent pipeline in background (non-blocking)
     runAnalysis(startupName.trim())
-      .then(async ({ financialData, swotData, competitorData, finalReport }) => {
+      .then(async ({ financialData, swotData, competitorData, scorecard, finalReport }) => {
+        // Generate PDF from the markdown report
+        let pdfUrl: string | null = null;
+        try {
+          pdfUrl = await generatePdf(analysisId, startupName.trim(), finalReport);
+          console.log(`📄 PDF generated: ${pdfUrl}`);
+        } catch (pdfErr) {
+          console.error(`⚠️ PDF generation failed for ${analysisId}:`, pdfErr);
+        }
+
         await pool.query(
           `UPDATE "Analysis"
            SET "financialData" = $1, "swotData" = $2, "competitorData" = $3,
-               "finalReport" = $4, status = 'completed', "updatedAt" = NOW()
-           WHERE id = $5`,
+               scorecard = $4, "finalReport" = $5, "pdfUrl" = $6,
+               status = 'completed', "updatedAt" = NOW()
+           WHERE id = $7`,
           [
             JSON.stringify(financialData),
             JSON.stringify(swotData),
             JSON.stringify(competitorData),
+            JSON.stringify(scorecard),
             finalReport,
+            pdfUrl,
             analysisId,
           ]
         );
@@ -64,7 +81,7 @@ export const getUserAnalyses = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
     const result = await pool.query(
-      `SELECT id, "startupName", description, status, "createdAt", "updatedAt"
+      `SELECT id, "startupName", description, status, "pdfUrl", "createdAt", "updatedAt"
        FROM "Analysis" WHERE "userId" = $1 ORDER BY "createdAt" DESC`,
       [userId]
     );
@@ -94,5 +111,27 @@ export const getAnalysisById = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("getAnalysisById error:", error);
     res.status(500).json({ error: "Failed to fetch analysis" });
+  }
+};
+
+// DELETE /api/analysis/:id — delete an analysis
+export const deleteAnalysis = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `DELETE FROM "Analysis" WHERE id = $1 AND "userId" = $2 RETURNING id`,
+      [id, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Analysis not found" });
+    }
+
+    res.json({ message: "Analysis deleted" });
+  } catch (error) {
+    console.error("deleteAnalysis error:", error);
+    res.status(500).json({ error: "Failed to delete analysis" });
   }
 };

@@ -1,10 +1,10 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { searchTool } from "./tools/searchTool.js";
 
-const llm = new ChatGoogleGenerativeAI({
-  model: "gemini-1.5-flash",
-  apiKey: process.env.GEMINI_API_KEY,
+const llm = new ChatOpenAI({
+  model: "gpt-4o-mini",
+  apiKey: process.env.OPENAI_API_KEY,
   temperature: 0.4,
 });
 
@@ -17,15 +17,20 @@ Use the search tool to gather information:
 - Opportunities: Search for market trends, growing demand in their sector, underserved segments they could target
 - Threats: Search for competitor moves, regulatory risks, market saturation, economic headwinds for their sector
 
+IMPORTANT: For every point you include, note the source URL it came from.
+
 Return your findings as a structured JSON object:
 {
   "strengths": ["point 1", "point 2", "point 3"],
   "weaknesses": ["point 1", "point 2", "point 3"],
   "opportunities": ["point 1", "point 2", "point 3"],
   "threats": ["point 1", "point 2", "point 3"],
+  "sources": [
+    { "title": "Article or site name", "url": "https://..." }
+  ],
   "summary": "2-3 sentence overall qualitative assessment"
 }
-Keep each point concise (1 sentence max). Aim for 3-5 points per category. Be factual and objective.`;
+Keep each point concise (1 sentence max). Aim for 3-5 points per category. Be factual and objective. Always populate the sources array.`;
 
 export async function runSwotAgent(startupName: string): Promise<object> {
   const llmWithTools = llm.bindTools([searchTool]);
@@ -33,7 +38,7 @@ export async function runSwotAgent(startupName: string): Promise<object> {
   const messages = [
     new SystemMessage(SWOT_SYSTEM_PROMPT),
     new HumanMessage(
-      `Conduct a SWOT analysis for: "${startupName}". Search for strengths (traction, tech, team), weaknesses (issues, gaps), opportunities (market trends), and threats (competitors, risks).`
+      `Conduct a SWOT analysis for: "${startupName}". Search for strengths (traction, tech, team), weaknesses (issues, gaps), opportunities (market trends), and threats (competitors, risks). Record the source URL for every key fact.`
     ),
   ];
 

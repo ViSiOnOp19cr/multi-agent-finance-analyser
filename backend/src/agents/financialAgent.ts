@@ -1,22 +1,24 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { searchTool } from "./tools/searchTool.js";
 import { crunchbaseTool } from "./tools/crunchbaseTool.js";
 
-const llm = new ChatGoogleGenerativeAI({
-  model: "gemini-1.5-flash",
-  apiKey: process.env.GEMINI_API_KEY,
+const llm = new ChatOpenAI({
+  model: "gpt-4o-mini",
+  apiKey: process.env.OPENAI_API_KEY,
   temperature: 0.3,
 });
 
 const FINANCIAL_SYSTEM_PROMPT = `You are a financial research analyst specializing in startup investments.
-Your job is to research and extract financial information about startups.
+Your job is to research and extract financial information AND founding team details about startups.
 
 You have TWO tools available:
-1. crunchbase_lookup — Use this FIRST. It fetches structured financial data directly from Crunchbase (funding rounds, investors, stage, revenue range, categories).
-2. tavily_search — Use this to SUPPLEMENT Crunchbase data with additional details like revenue estimates, key quotes from investors, recent news, and any financial info not returned by Crunchbase.
+1. startup_financial_lookup — Use this FIRST. It searches multiple web sources (TechCrunch, PitchBook, AngelList, etc.) to get financial data about the startup including funding rounds, investors, valuation, and revenue estimates.
+2. tavily_search — Use this to SUPPLEMENT with additional details like recent news, key quotes from investors, specific financial metrics, or any data gaps from the first search. ALSO use this to search for founder/co-founder backgrounds, previous startups, education, and LinkedIn profiles.
 
-Always call crunchbase_lookup first using the startup's Crunchbase permalink (lowercase name with hyphens, e.g. "stripe", "open-ai", "razorpay"). Then use tavily_search to fill any gaps.
+Always call startup_financial_lookup first with the startup name. Then use tavily_search to fill any remaining gaps AND to research the founding team.
+
+IMPORTANT: For every fact you include, record which URL or publication it came from in the sources array.
 
 Return your findings as a structured JSON object with these exact keys:
 {
@@ -31,9 +33,21 @@ Return your findings as a structured JSON object with these exact keys:
   "categories": string,
   "foundedYear": string,
   "hq": string,
+  "founders": [
+    {
+      "name": "Founder Name",
+      "role": "CEO / CTO / Co-founder etc.",
+      "background": "Brief bio — education, previous companies, key achievements",
+      "previousStartups": "List of previous startups they founded or co-founded, or N/A",
+      "relevantExperience": "Why their background makes them qualified to build this startup"
+    }
+  ],
+  "sources": [
+    { "title": "Article or site name", "url": "https://..." }
+  ],
   "summary": string
 }
-If data is not available, use "N/A". Be concise and factual.`;
+If data is not available, use "N/A". Be concise and factual. Always populate the sources array.`;
 
 export async function runFinancialAgent(startupName: string): Promise<object> {
   const tools = [crunchbaseTool, searchTool];
@@ -42,9 +56,10 @@ export async function runFinancialAgent(startupName: string): Promise<object> {
   const messages = [
     new SystemMessage(FINANCIAL_SYSTEM_PROMPT),
     new HumanMessage(
-      `Research the financial details of this startup: "${startupName}".
-      First, look it up on Crunchbase to get structured funding/investor data.
-      Then supplement with web search for revenue estimates and anything Crunchbase doesn't cover.`
+      `Research the financial details and founding team of this startup: "${startupName}".
+      First, use startup_financial_lookup to get structured funding/investor data from web sources.
+      Then use tavily_search to find: revenue estimates, recent news, AND the founders/co-founders — their names, roles, backgrounds, previous startups, education, and why they're qualified to build this company.
+      Record the source URL for every key fact you find.`
     ),
   ];
 
@@ -54,7 +69,7 @@ export async function runFinancialAgent(startupName: string): Promise<object> {
   while (response.tool_calls && response.tool_calls.length > 0) {
     for (const toolCall of response.tool_calls) {
       let toolResult: unknown;
-      if (toolCall.name === "crunchbase_lookup") {
+      if (toolCall.name === "startup_financial_lookup") {
         toolResult = await crunchbaseTool.invoke(toolCall as any);
       } else {
         toolResult = await searchTool.invoke(toolCall as any);

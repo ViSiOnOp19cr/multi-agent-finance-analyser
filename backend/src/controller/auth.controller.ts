@@ -8,7 +8,7 @@ import jwt from "jsonwebtoken";
 export const register = async (req: Request, res: Response) => {
   try {
     const { email, password, name }  = req.body;
-
+    console.log(email, password, name);
     if (!email || !password || !name) {
       return res.status(400).json({ error: 'Email, password, and name are required' });
     }
@@ -22,7 +22,7 @@ export const register = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
-      'INSERT INTO "User" (id, email, password, name,  "createdAt", "updatetdAt") VALUES (gen_random_uuid()::text, $1, $2, $3, NOW(), NOW()) RETURNING id',
+      'INSERT INTO "User" (id, email, password, name, "createdAt", "updatedAt") VALUES (gen_random_uuid()::text, $1, $2, $3, NOW(), NOW()) RETURNING id',
       [email, hashedPassword, name]
     );
 
@@ -33,9 +33,8 @@ export const register = async (req: Request, res: Response) => {
     });
 
   } catch (error) {
-
+    console.error('Registration error:', error);
     res.status(500).json({ error: 'Registration failed' });
-
   }
 };
 
@@ -76,6 +75,7 @@ export const login = async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });
   }
 }

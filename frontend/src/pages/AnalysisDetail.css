@@ -1,0 +1,301 @@
+/* ─── Detail Header ───────────────────────────────────────────────────────── */
+.detail-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.detail-header-info {
+  margin-top: 8px;
+}
+
+.detail-header-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.detail-header-top h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.detail-description {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  margin-top: 4px;
+}
+
+.detail-header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ─── Tabs ────────────────────────────────────────────────────────────────── */
+.detail-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 24px;
+}
+
+.detail-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.detail-tab:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.detail-tab-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.detail-tab-content {
+  animation: fadeIn var(--transition-normal) ease;
+}
+
+.scorecard-section {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-light);
+}
+
+.scorecard-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  padding: 0 !important;
+  background: none !important;
+  border-left: none !important;
+  border-radius: 0 !important;
+}
+
+/* ─── Processing ──────────────────────────────────────────────────────────── */
+.analysis-processing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 24px;
+  gap: 16px;
+}
+
+.analysis-processing-animation {
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.analysis-processing h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.analysis-processing p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  max-width: 400px;
+}
+
+.analysis-processing-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.processing-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+}
+
+.processing-step.active {
+  color: var(--accent);
+}
+
+.processing-step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  transition: background var(--transition-normal);
+}
+
+.processing-step.active .processing-step-dot {
+  background: var(--accent);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ─── JSON Display ────────────────────────────────────────────────────────── */
+.json-display pre {
+  background: var(--bg-secondary);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+}
+
+/* ─── Scorecard ───────────────────────────────────────────────────────────── */
+.scorecard {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.scorecard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.scorecard-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scorecard-title span:first-child {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.scorecard-subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+}
+
+.scorecard-verdict {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.scorecard-overall {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  opacity: 0.8;
+  margin-left: 4px;
+}
+
+.verdict-bullish  { background: rgba(34, 197, 94, 0.15);  color: #22c55e; }
+.verdict-neutral  { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.verdict-bearish  { background: rgba(239, 68, 68, 0.15);  color: #ef4444; }
+
+.scorecard-dims {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.scorecard-dim {
+  position: relative;
+  cursor: default;
+}
+
+.scorecard-dim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.scorecard-dim-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.scorecard-dim-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.scorecard-weight {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.scorecard-score {
+  font-size: 0.875rem;
+  font-weight: 700;
+  min-width: 36px;
+  text-align: right;
+}
+
+.scorecard-bar-track {
+  height: 6px;
+  background: var(--bg-secondary);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.scorecard-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scorecard-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  pointer-events: none;
+}
+
+.scorecard-summary {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-style: italic;
+}
+
