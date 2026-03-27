@@ -38,9 +38,6 @@ Add inline citations [Source](url) after specific claims.
 Name the market category, describe the market, list key competitors with their funding and differentiators. Use a markdown table if possible.
 Add inline citations [Source](url) for competitor data.
 
-## 6. Investment Recommendation
-State clearly: **Bullish** / **Neutral** / **Bearish**
-Provide 3-5 bullet points of reasoning for the recommendation. Factor in the founding team's strength as one of the signals.
 
 ## Sources
 List ALL sources referenced in this report as a numbered markdown link list:

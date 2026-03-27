@@ -43,9 +43,11 @@ export default function Chat() {
     fetchConversations();
   }, []);
 
-  // If coming from analysis page, auto-create a conversation scoped to that analysis
+  // If coming from analysis page, always create a NEW conversation scoped to that analysis
+  const linkedChatCreated = useRef(false);
   useEffect(() => {
-    if (initialAnalysisId && conversations.length === 0 && !convLoading) {
+    if (initialAnalysisId && !convLoading && !linkedChatCreated.current) {
+      linkedChatCreated.current = true;
       handleNewChat(initialAnalysisId);
     }
   }, [convLoading]);
@@ -54,8 +56,8 @@ export default function Chat() {
     try {
       const res = await api.get('/chat/conversations');
       setConversations(res.data.conversations);
-      // If there's conversations, auto-select the most recent
-      if (res.data.conversations.length > 0 && !activeConvId) {
+      // Auto-select the most recent conversation ONLY if not coming from an analysis page
+      if (res.data.conversations.length > 0 && !activeConvId && !initialAnalysisId) {
         selectConversation(res.data.conversations[0].id);
       }
     } catch (err) {

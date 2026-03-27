@@ -12,5 +12,5 @@ app.use(express.json());
 app.use("/", router);
 
 app.listen(3006, () => {
-  console.log("🚀 Server running on port 3006");
+  console.log("Server running on port 3006");
 });

@@ -2,9 +2,7 @@ import { tool } from "@langchain/core/tools";
 import { z } from "zod";
 import { TavilySearch } from "@langchain/tavily";
 
-// Tavily-powered startup financial research tool
-// Replaces Crunchbase API with multi-source web search across TechCrunch,
-// PitchBook, AngelList, LinkedIn, and other public sources.
+
 
 const tavily = new TavilySearch({
   maxResults: 5,
@@ -34,8 +32,7 @@ async function searchStartupFinancials(
   };
 }
 
-// LangChain tool definition — agents call this by passing the startup name
-// NOTE: export name kept as `crunchbaseTool` for backward compatibility with agent imports
+
 export const crunchbaseTool = tool(
   async ({ startupName }) => {
     try {
