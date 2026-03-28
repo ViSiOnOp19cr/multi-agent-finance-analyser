@@ -156,14 +156,7 @@ export default function AnalysisDetail() {
       </div>
       <h2>Analyzing {analysis.startupName}...</h2>
       <p>Our AI agents are researching financials, competitors, and market data. This typically takes 1-3 minutes.</p>
-      <div className="analysis-processing-steps">
-        {['Financial Agent', 'SWOT Agent', 'Competitor Agent', 'Scoring Agent', 'Manager — Final Report'].map((step, i) => (
-          <div key={i} className="processing-step active">
-            <div className="processing-step-dot" />
-            <span>{step}</span>
-          </div>
-        ))}
-      </div>
+
     </div>
   );
 
